@@ -17,15 +17,16 @@ contract DegenToken is ERC20, Ownable, ERC20Burnable {
 
     Product[] private products;
 
-    constructor() ERC20("Degen", "DGN") Ownable(msg.sender) {
-        products.push(Product(10, "Roblox - Basta NFT", false));
-        products.push(Product(11, "PS5 NFT", false));
-        products.push(Product(12, "Twice Merch", false));
-        products.push(Product(13, "Sword NFT", false));
+    constructor() ERC20("Degen", "DGN") Ownable() {
+        products.push(Product(5, "T-Shirt NFT", false));
+        products.push(Product(10, "Cellphone NFT", false));
+        products.push(Product(15, "Car NFT", false));
+        products.push(Product(20, "House NFT", false));
     }
 
-    function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount); 
+    // utilizing ERC20 built-in function to mint tokens
+    function mint(address _to, uint256 _amount) public onlyOwner {
+        _mint(_to, _amount); 
     }
 
     function decimals() override public pure returns (uint8) {
@@ -36,27 +37,30 @@ contract DegenToken is ERC20, Ownable, ERC20Burnable {
         return this.balanceOf(msg.sender);
     }
 
-    function transferTokens(address receiver, uint256 value) external {
-        require(balanceOf(msg.sender) >= value, "Insufficient DGN tokens for transfer!");
-        approve(msg.sender, value);
-        transferFrom(msg.sender, receiver, value);
+    // utilizing ERC20 built-in function to transfer tokens
+    function transferTokens(address _receiver, uint256 _value) external {
+        require(balanceOf(msg.sender) >= _value, "Insufficient DGN tokens for transfer!");
+        approve(msg.sender, _value);
+        transferFrom(msg.sender, _receiver, _value);
     }
 
+    // utilizing ERC20 built-in function to burn tokens
     function burnTokens(uint256 value) external {
         require(balanceOf(msg.sender) >= value, "Insufficient DGN tokens to burn!");
         burn(value);
     }
 
     function redeemTokens(uint8 index) external payable returns (string memory) {
-        require(index >= 0 && index < 4, "Invalid selection");
-        require(!products[index].redeemed, "This product has already been redeemed!");
-        require(balanceOf(msg.sender) >= products[index].costInTokens, "Insufficient DGN tokens to redeem this product!");
+        require(index >= 0 && index < 4, "Invalid selection, must be from 0-3 only!");
+        require(!products[index].redeemed, "Product is already redeemed!");
+        require(balanceOf(msg.sender) >= products[index].costInTokens, "Insufficient tokens to redeem the item!");
 
         approve(msg.sender, products[index].costInTokens);
         transferFrom(msg.sender, owner(), products[index].costInTokens);
         products[index].redeemed = true;
 
-        return string.concat(products[index].name, " has been redeemed!");
+        // display the name of the redeemed product
+        return string.concat(products[index].name, " has successfully been redeemed!");
     }
 
     function displayProducts() public view returns (string memory) {
